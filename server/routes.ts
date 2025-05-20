@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, hashPassword } from "./auth";
@@ -9,6 +9,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { ZodError } from "zod-validation-error";
+import express from "express";
 
 // Helper function to handle Zod validation
 function validateBody<T>(schema: z.ZodSchema<T>, body: unknown): T {
@@ -43,8 +44,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
   
   // Admin registration endpoint
+  // Admin registration route
   app.post("/api/admin/register", async (req, res) => {
     try {
+      // Explicitly set Content-Type to JSON
       res.setHeader('Content-Type', 'application/json');
       
       // Check for admin registration secret key
