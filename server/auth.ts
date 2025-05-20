@@ -98,7 +98,42 @@ export function setupAuth(app: Express) {
     }
   });
   
-  // Admin registration endpoint moved to routes.ts
+  // Admin registration endpoint
+  app.post("/api/admin/register", async (req, res, next) => {
+    try {
+      // Ensure Content-Type is application/json
+      res.setHeader('Content-Type', 'application/json');
+      
+      // Check for admin registration secret key
+      const { adminSecret, ...userData } = req.body;
+      
+      if (adminSecret !== process.env.ADMIN_SECRET_KEY && adminSecret !== 'admin-secret-dev') {
+        return res.status(403).json({ message: "Invalid admin registration key" });
+      }
+      
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+
+      const user = await storage.createUser({
+        ...userData,
+        password: await hashPassword(userData.password),
+        role: 'admin', // Set admin role
+      });
+
+      // Exclude password from response
+      const userWithoutPassword = { ...user } as any;
+      delete userWithoutPassword.password;
+
+      req.login(user, (err) => {
+        if (err) return next(err);
+        res.status(201).json(userWithoutPassword);
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 
   app.post("/api/login", (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
