@@ -10,6 +10,8 @@ import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "@/lib/protected-route";
 import ProfilePage from "@/pages/user/profile-page";
 import BorrowedBooksPage from "@/pages/user/borrowed-books-page";
+import SupportPage from "@/pages/user/support-page";
+import SettingsPage from "@/pages/user/settings-page";
 import DashboardPage from "@/pages/admin/dashboard-page";
 import BooksPage from "@/pages/admin/books-page";
 import UsersPage from "@/pages/admin/users-page";
@@ -22,6 +24,8 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/profile" component={ProfilePage} />
       <ProtectedRoute path="/borrowed" component={BorrowedBooksPage} />
+      <ProtectedRoute path="/support" component={SupportPage} />
+      <ProtectedRoute path="/settings" component={SettingsPage} />
       <ProtectedRoute path="/admin" component={DashboardPage} adminOnly />
       <ProtectedRoute path="/admin/books" component={BooksPage} adminOnly />
       <ProtectedRoute path="/admin/users" component={UsersPage} adminOnly />
