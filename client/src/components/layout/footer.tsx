@@ -1,5 +1,22 @@
 import { Link } from "wouter";
-import { BookOpen, MapPin, Phone, Mail, Facebook, Twitter, Instagram } from "lucide-react";
+import { 
+  BookOpen, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Facebook, 
+  Twitter, 
+  Instagram, 
+  Clock, 
+  FileText, 
+  HelpCircle, 
+  Calendar, 
+  BookMarked, 
+  User, 
+  Bell, 
+  Heart, 
+  BookOpenCheck
+} from "lucide-react";
 
 export default function Footer() {
   return (
@@ -20,23 +37,39 @@ export default function Footer() {
             <h3 className="font-medium text-neutral-800 mb-4">Information</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/about" className="text-neutral-600 hover:text-primary">
-                  About Us
+                <Link href="/about" className="flex items-center text-neutral-600 hover:text-primary">
+                  <FileText className="h-4 w-4 mr-2" />
+                  <span>About Our Library</span>
                 </Link>
               </li>
               <li>
-                <Link href="/hours" className="text-neutral-600 hover:text-primary">
-                  Library Hours
+                <Link href="/hours" className="flex items-center text-neutral-600 hover:text-primary">
+                  <Clock className="h-4 w-4 mr-2" />
+                  <span>Operating Hours</span>
                 </Link>
               </li>
               <li>
-                <Link href="/membership" className="text-neutral-600 hover:text-primary">
-                  Membership
+                <Link href="/membership" className="flex items-center text-neutral-600 hover:text-primary">
+                  <BookMarked className="h-4 w-4 mr-2" />
+                  <span>Membership Benefits</span>
                 </Link>
               </li>
               <li>
-                <Link href="/policies" className="text-neutral-600 hover:text-primary">
-                  Rules & Policies
+                <Link href="/policies" className="flex items-center text-neutral-600 hover:text-primary">
+                  <FileText className="h-4 w-4 mr-2" />
+                  <span>Rules & Policies</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/events" className="flex items-center text-neutral-600 hover:text-primary">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <span>Events Calendar</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="flex items-center text-neutral-600 hover:text-primary">
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  <span>FAQ</span>
                 </Link>
               </li>
             </ul>
@@ -46,23 +79,39 @@ export default function Footer() {
             <h3 className="font-medium text-neutral-800 mb-4">Member Services</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/profile" className="text-neutral-600 hover:text-primary">
-                  Your Account
+                <Link href="/profile" className="flex items-center text-neutral-600 hover:text-primary">
+                  <User className="h-4 w-4 mr-2" />
+                  <span>Your Profile</span>
                 </Link>
               </li>
               <li>
-                <Link href="/borrowed" className="text-neutral-600 hover:text-primary">
-                  Borrowed Books
+                <Link href="/borrowed" className="flex items-center text-neutral-600 hover:text-primary">
+                  <BookOpenCheck className="h-4 w-4 mr-2" />
+                  <span>Borrowed Books</span>
                 </Link>
               </li>
               <li>
-                <Link href="/history" className="text-neutral-600 hover:text-primary">
-                  Reading History
+                <Link href="/history" className="flex items-center text-neutral-600 hover:text-primary">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  <span>Reading History</span>
                 </Link>
               </li>
               <li>
-                <Link href="/recommendations" className="text-neutral-600 hover:text-primary">
-                  Book Recommendations
+                <Link href="/recommendations" className="flex items-center text-neutral-600 hover:text-primary">
+                  <Heart className="h-4 w-4 mr-2" />
+                  <span>Book Recommendations</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/notifications" className="flex items-center text-neutral-600 hover:text-primary">
+                  <Bell className="h-4 w-4 mr-2" />
+                  <span>Notifications</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/help" className="flex items-center text-neutral-600 hover:text-primary">
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  <span>Help Center</span>
                 </Link>
               </li>
             </ul>
@@ -83,12 +132,23 @@ export default function Footer() {
                 <Mail className="h-4 w-4 mr-2" />
                 info@libraryhub.com
               </li>
+              <li className="mt-4">
+                <Link href="/contact" className="inline-block bg-primary text-white text-sm px-3 py-2 rounded hover:bg-primary-dark transition-colors">
+                  Send a Message
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-neutral-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-neutral-500 text-sm">&copy; 2023 LibraryHub. All rights reserved.</p>
+          <div className="text-neutral-500 text-sm flex flex-col md:flex-row md:space-x-4">
+            <p>&copy; {new Date().getFullYear()} LibraryHub. All rights reserved.</p>
+            <div className="flex space-x-4 mt-2 md:mt-0">
+              <Link href="/privacy" className="hover:text-primary">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-primary">Terms of Use</Link>
+            </div>
+          </div>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-neutral-500 hover:text-neutral-800">
               <Facebook className="h-5 w-5" />
