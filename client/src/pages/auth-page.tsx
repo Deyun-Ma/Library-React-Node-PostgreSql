@@ -45,10 +45,12 @@ export default function AuthPage() {
   
   // Parse query parameters to determine initial tab
   useEffect(() => {
-    const params = new URLSearchParams(search);
-    const tab = params.get("tab");
-    if (tab === "signup") {
-      setActiveTab("register");
+    if (search) {
+      const params = new URLSearchParams(search);
+      const tab = params.get("tab");
+      if (tab === "signup") {
+        setActiveTab("register");
+      }
     }
   }, [search]);
   
@@ -77,6 +79,7 @@ export default function AuthPage() {
       confirmPassword: "",
       firstName: "",
       lastName: "",
+      adminSecret: "",
     },
   });
   
@@ -85,8 +88,20 @@ export default function AuthPage() {
   };
   
   const onRegisterSubmit = (data: RegistrationFormValues) => {
-    const { confirmPassword, ...userData } = data;
-    registerMutation.mutate(userData as InsertUser);
+    const { confirmPassword, adminSecret, ...userData } = data;
+    
+    if (isAdminMode && adminSecret) {
+      // Handle admin registration
+      adminRegisterMutation.mutate({ ...userData, adminSecret } as InsertUser & { adminSecret: string });
+    } else {
+      // Handle regular user registration
+      registerMutation.mutate(userData as InsertUser);
+    }
+  };
+  
+  // Toggle between admin and regular user registration
+  const toggleAdminMode = () => {
+    setIsAdminMode(!isAdminMode);
   };
   
   if (user) {
@@ -180,6 +195,28 @@ export default function AuthPage() {
             <TabsContent value="register">
               <Form {...registerForm}>
                 <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                  {/* Admin mode toggle */}
+                  <div className="border rounded-md p-3 mb-4 bg-neutral-50">
+                    <Label className="flex items-center justify-between cursor-pointer">
+                      <span className="text-sm font-medium">Administrator Registration</span>
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={isAdminMode}
+                          onChange={toggleAdminMode}
+                        />
+                        <div className={`block w-10 h-6 rounded-full transition-colors ${isAdminMode ? 'bg-primary' : 'bg-neutral-300'}`}></div>
+                        <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform ${isAdminMode ? 'translate-x-4' : ''}`}></div>
+                      </div>
+                    </Label>
+                    {isAdminMode && (
+                      <p className="text-xs text-neutral-600 mt-2">
+                        Administrator accounts have full control over the library system. Requires an admin secret key.
+                      </p>
+                    )}
+                  </div>
+                
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={registerForm.control}
@@ -255,6 +292,26 @@ export default function AuthPage() {
                     )}
                   />
                   
+                  {/* Admin secret key field */}
+                  {isAdminMode && (
+                    <FormField
+                      control={registerForm.control}
+                      name="adminSecret"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Admin Secret Key</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="Enter admin secret key" {...field} />
+                          </FormControl>
+                          <p className="text-xs text-neutral-500 mt-1">
+                            Contact your system administrator to obtain a valid admin secret key
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  
                   <div className="mb-6">
                     <Label className="flex items-start">
                       <input type="checkbox" className="mt-1 h-4 w-4 text-primary" />
@@ -267,15 +324,26 @@ export default function AuthPage() {
                   <Button 
                     type="submit" 
                     className="w-full bg-primary text-white" 
-                    disabled={registerMutation.isPending}
+                    disabled={isAdminMode ? adminRegisterMutation.isPending : registerMutation.isPending}
                   >
-                    {registerMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating Account...
-                      </>
+                    {isAdminMode ? (
+                      adminRegisterMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating Admin Account...
+                        </>
+                      ) : (
+                        "Create Administrator Account"
+                      )
                     ) : (
-                      "Create Account"
+                      registerMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating Account...
+                        </>
+                      ) : (
+                        "Create Account"
+                      )
                     )}
                   </Button>
                 </form>
