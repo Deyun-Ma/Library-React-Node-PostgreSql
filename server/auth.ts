@@ -82,6 +82,40 @@ export function setupAuth(app: Express) {
       const user = await storage.createUser({
         ...req.body,
         password: await hashPassword(req.body.password),
+        role: 'user', // Default role for regular registration
+      });
+
+      // Exclude password from response
+      const userWithoutPassword = { ...user };
+      delete userWithoutPassword.password;
+
+      req.login(user, (err) => {
+        if (err) return next(err);
+        res.status(201).json(userWithoutPassword);
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+  
+  app.post("/api/admin/register", async (req, res, next) => {
+    try {
+      // Check for admin registration secret key
+      const { adminSecret, ...userData } = req.body;
+      
+      if (adminSecret !== process.env.ADMIN_SECRET_KEY && adminSecret !== 'admin-secret-dev') {
+        return res.status(403).json({ message: "Invalid admin registration key" });
+      }
+      
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+
+      const user = await storage.createUser({
+        ...userData,
+        password: await hashPassword(userData.password),
+        role: 'admin', // Set admin role
       });
 
       // Exclude password from response

@@ -16,6 +16,7 @@ type AuthContextType = {
   loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
+  adminRegisterMutation: UseMutationResult<SelectUser, Error, InsertUser & { adminSecret: string }>;
   isAdmin: boolean;
 };
 
@@ -41,7 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
-      setLocation("/");
+      // Redirect admin users to the admin dashboard, regular users to the home page
+      setLocation(user.role === 'admin' ? "/admin" : "/");
       toast({
         title: "Login successful",
         description: `Welcome back${user.firstName ? ', ' + user.firstName : ''}!`,
@@ -72,6 +74,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onError: (error: Error) => {
       toast({
         title: "Registration failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const adminRegisterMutation = useMutation({
+    mutationFn: async (credentials: InsertUser & { adminSecret: string }) => {
+      const res = await apiRequest("POST", "/api/admin/register", credentials);
+      return await res.json();
+    },
+    onSuccess: (user: SelectUser) => {
+      queryClient.setQueryData(["/api/user"], user);
+      setLocation("/admin");
+      toast({
+        title: "Admin Registration successful",
+        description: `Welcome to LibraryHub Admin, ${user.firstName || 'admin'}!`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Admin Registration failed",
         description: error.message,
         variant: "destructive",
       });
@@ -110,6 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginMutation,
         logoutMutation,
         registerMutation,
+        adminRegisterMutation,
         isAdmin,
       }}
     >

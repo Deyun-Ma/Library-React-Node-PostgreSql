@@ -27,6 +27,7 @@ const registrationSchema = z.object({
   confirmPassword: z.string().min(1, "Please confirm your password"),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
+  adminSecret: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -37,7 +38,8 @@ type RegistrationFormValues = z.infer<typeof registrationSchema>;
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
-  const { user, loginMutation, registerMutation } = useAuth();
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+  const { user, loginMutation, registerMutation, adminRegisterMutation } = useAuth();
   const [, setLocation] = useLocation();
   const { search } = useLocation()[0];
   
