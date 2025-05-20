@@ -58,7 +58,7 @@ export default function AdminSidebar({ className }: AdminSidebarProps) {
             return (
               <li key={item.href}>
                 <Link href={item.href}>
-                  <a
+                  <div
                     className={cn(
                       "flex items-center px-3 py-2 text-sm font-medium rounded-md",
                       isActive
@@ -68,7 +68,7 @@ export default function AdminSidebar({ className }: AdminSidebarProps) {
                   >
                     <item.icon className="mr-3 h-5 w-5" />
                     {item.title}
-                  </a>
+                  </div>
                 </Link>
               </li>
             );
