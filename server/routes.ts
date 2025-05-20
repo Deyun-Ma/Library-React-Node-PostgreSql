@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth } from "./auth";
+import { setupAuth, hashPassword } from "./auth";
 import { 
   insertCategorySchema, 
   insertBookSchema, 
@@ -41,6 +41,47 @@ function isAdmin(req: Request, res: Response, next: Function) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
+  
+  // Admin registration endpoint
+  app.post("/api/admin/register", async (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'application/json');
+      
+      // Check for admin registration secret key
+      const { adminSecret, ...userData } = req.body;
+      
+      if (adminSecret !== process.env.ADMIN_SECRET_KEY && adminSecret !== 'admin-secret-dev') {
+        return res.status(403).json({ message: "Invalid admin registration key" });
+      }
+      
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+
+      const user = await storage.createUser({
+        ...userData,
+        password: await hashPassword(userData.password),
+        role: 'admin', // Set admin role
+      });
+
+      // Exclude password from response
+      const userWithoutPassword = { ...user } as any;
+      delete userWithoutPassword.password;
+
+      req.login(user, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Login failed after registration" });
+        }
+        return res.status(201).json(userWithoutPassword);
+      });
+    } catch (error) {
+      console.error("Admin registration error:", error);
+      return res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Unknown error during admin registration" 
+      });
+    }
+  });
 
   // Category routes
   app.get("/api/categories", async (req, res, next) => {
