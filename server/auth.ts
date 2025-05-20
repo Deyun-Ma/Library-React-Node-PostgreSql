@@ -100,6 +100,9 @@ export function setupAuth(app: Express) {
   
   app.post("/api/admin/register", async (req, res, next) => {
     try {
+      // Ensure Content-Type is application/json
+      res.type('application/json');
+      
       // Check for admin registration secret key
       const { adminSecret, ...userData } = req.body;
       

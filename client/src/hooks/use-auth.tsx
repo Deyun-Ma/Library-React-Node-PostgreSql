@@ -82,8 +82,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const adminRegisterMutation = useMutation({
     mutationFn: async (credentials: InsertUser & { adminSecret: string }) => {
-      const res = await apiRequest("POST", "/api/admin/register", credentials);
-      return await res.json();
+      try {
+        const res = await apiRequest("POST", "/api/admin/register", credentials);
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Failed to register admin');
+        }
+        return await res.json();
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new Error('Failed to register admin: Unknown error');
+      }
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
